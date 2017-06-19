@@ -6,7 +6,7 @@ FIXME
 
 ### Run the application locally
 
-`lein ring server`
+`lein ring server-headless`
 
 ### Packaging and running as standalone jar
 
