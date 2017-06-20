@@ -7,7 +7,8 @@
                  [manifold "0.1.6"]
                  [org.clojure/core.async "0.3.441"]
                  [com.novemberain/monger "3.1.0"]
-                 [io.nervous/kvlt "0.1.4"]]
+                 [io.nervous/kvlt "0.1.4"]
+                 [cheshire "5.7.1"]]
   :ring {:handler palo-it-bot.handler/app
          :async? true}
   :uberjar-name "server.jar"
