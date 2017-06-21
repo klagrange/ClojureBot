@@ -7,16 +7,40 @@
             [clojure.core.async :as a]
             [clojure.pprint :refer [pprint]]))
 
+;; Core Dispatch
+(defmulti core-dispatch
+  (fn [_ message-type _ _]
+    message-type))
+;; Core Dispatch (text)
+(defmethod core-dispatch :text
+  [ch-out _ sender-id message-value]
+  (let [api-return (-> message-value
+                       (api-ai/api-ai-send)
+                       (a/<!!)
+                       (api-ai/treat-api-ai-return))]
+    (a/>!! ch-out {:sender-id sender-id
+                  :message-type :text
+                  :message-value api-return})))
+;; Core Dispatch (photo)
+(defmethod core-dispatch :photo
+  [ch-out _ sender-id message-value]
+  (a/>!! ch-out {:sender-id sender-id
+                :message-type :text
+                :message-value "You send me a picture"}))
+;; Core Dispatch (unknown)
+(defmethod core-dispatch :unknown
+  [ch-out _ sender-id message-value]
+  (a/>!! ch-out {:sender-id sender-id
+                 :message-type :text
+                 :message-value "What did you just do?"}))
 
+;; Core Handler
 (defn core
   [payload]
-  (let [message-value (:message-value payload)
+  (let [message-value (payload :message-value)
+        sender-id (payload :sender-id)
+        message-type (get payload :message-type :unknown)
         ch-out (a/chan)]
     (a/go
-           (-> message-value
-               (api-ai/api-ai-send)
-               ; side effect calls
-               (a/<!)
-               (api-ai/treat-api-ai-return)
-               (a/>! ch-out)))
+      (core-dispatch ch-out message-type sender-id message-value))
     ch-out))

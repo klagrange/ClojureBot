@@ -1,6 +1,7 @@
 (ns palo-it-bot.telegram
   (:require [palo-it-bot.api-ai :as api-ai]
             [palo-it-bot.config :as config]
+            [palo-it-bot.core :as core]
             [palo-it-bot.utils :as utils]
             [kvlt.chan :as kvlt]
             [ring.util.http-response :refer :all]
@@ -10,35 +11,35 @@
 ;; Token
 (def telegram-token (get-in config/TOKENS [:dev :telegram :TOKEN]))
 
-;; Telegram out multi
+;; Telegram Out!
 (defmulti telegram-out
   (fn [payload]
     (:message-type payload)))
-;; Telegram out text
+;; Telegram Out! (text)
 (defmethod telegram-out :text
   [payload]
   (let [sender-id (payload :sender-id)
-        text (payload :message-value)
-        text (str "You just send me \"" text "\"")]
+        text (payload :message-value)]
     (kvlt/request! {:url (str "https://api.telegram.org/bot" telegram-token "/sendMessage")
                     :method :post
                     :headers {:content-type "application/json"}
                     :type :json
                     :form {:chat_id sender-id
                            :text text}})))
-;; Telegram out photo
+;; Telegram Out! (photo)
 (defmethod telegram-out :photo
   [payload]
   (let [sender-id (payload :sender-id)
-        photo (:file_id (last (payload :message-value)))]
+        photo (:photo (payload :message-value))
+        caption (:caption (payload :message-value))]
     (kvlt/request! {:url (str "https://api.telegram.org/bot" telegram-token "/sendPhoto")
                     :method :post
                     :headers {:content-type "application/json"}
                     :type :json
-                    :form {:chat_id sender-id
-                           :photo photo
-                           :caption "You just send me this picture"}})))
-;; Telegram out unknown
+                    :form (cond-> {:chat_id sender-id
+                                   :photo photo}
+                            caption (assoc :caption caption))})))
+;; Telegram Out! (unknown)
 (defmethod telegram-out :unknown
   [payload]
   (let [sender-id (payload :sender-id)
@@ -53,8 +54,8 @@
 
 ;; Telegram In!
 (defn telegram-in!
-  "telegram IN"
   [request respond raise]
+  (respond (ok {:result true}))
   (let [params (:params request)
         sender-id (get-in params [:message :chat :id])
         text (get-in params [:message :text])
@@ -67,8 +68,8 @@
                                            :else :unknown)
                            :message-value (or text
                                               photo)}]
-    (respond (ok {:result true}))
-    (telegram-out formatted-message)))
-(defn telegram-in
-  [request respond raise]
-  (telegram-in! request respond raise))
+    (a/go
+      (-> formatted-message
+          (core/core)
+          (a/<!)
+          (telegram-out)))))

@@ -35,5 +35,4 @@
                  (and (= status 200) (> score threshold)) speech
                  (not= status 200) "My brain shut down for some reason :("
                  (and (= status 200) (< score threshold)) (rand-nth utils/api-ai-score-not-met))]
-   (println "API.AI return: " answer)
    answer))

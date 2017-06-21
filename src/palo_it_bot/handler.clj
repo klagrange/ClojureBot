@@ -50,7 +50,7 @@
            (fn [request respond raise]
             (do (println "--------------- telegram-in ---------------")
                 (pprint request)
-                (telegram/telegram-in request respond raise)))))
+                (telegram/telegram-in! request respond raise)))))
      (context "/api-ai" []
       :tags ["api-ai"]
       (GET "/" []
