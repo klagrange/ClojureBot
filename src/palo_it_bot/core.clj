@@ -18,5 +18,5 @@
                ; side effect calls
                (a/<!)
                (api-ai/treat-api-ai-return)
-               (a/>! ch-out)))
+               (->> (a/>! ch-out))))
     ch-out))
