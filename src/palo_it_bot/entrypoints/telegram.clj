@@ -1,4 +1,4 @@
-(ns palo-it-bot.telegram
+(ns palo-it-bot.entrypoints.telegram
   (:require [palo-it-bot.api-ai :as api-ai]
             [palo-it-bot.config :as config]
             [palo-it-bot.core :as core]

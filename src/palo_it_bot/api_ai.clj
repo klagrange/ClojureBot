@@ -9,10 +9,9 @@
 (defn api-ai-send
   "Returns a channel according to:
    - text: keyed-in text."
-  [text]
+  [text session-id]
   (let [url (get-in config/TOKENS [:dev :api-ai :URL])
-        client-access-token (get-in config/TOKENS [:dev :api-ai :CLIENT-ACCESS-TOKEN])
-        session-id (get-in config/TOKENS [:dev :api-ai :SESSION-ID])]
+        client-access-token (get-in config/TOKENS [:dev :api-ai :CLIENT-ACCESS-TOKEN])]
     (kvlt/request! {:url "https://api.api.ai/v1/query?v=20150910"
                     :method :post
                     :headers {:content-type "application/json"

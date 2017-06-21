@@ -10,8 +10,8 @@
             [palo-it-bot.config :as config]
             [palo-it-bot.utils :as utils]
             [kvlt.chan :as kvlt]
-            [palo-it-bot.messenger :as messenger]
-            [palo-it-bot.telegram :as telegram]
+            [palo-it-bot.entrypoints.messenger :as messenger]
+            [palo-it-bot.entrypoints.telegram :as telegram]
             [palo-it-bot.api-ai :as api-ai]
             [cheshire.core :refer [generate-string parse-string]]
             compojure.api.async))
