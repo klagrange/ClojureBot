@@ -25,7 +25,8 @@
                    :description "Portfolio for API calls on several channels"}
             :tags [{:name "messenger" :description "API calls for messenger"}
                    {:name "telegram" :description "API calls for telegram"}
-                   {:name "api-ai" :description "API calls for API.AI"}]}}}
+                   {:name "api-ai" :description "API calls for API.AI"}
+                   {:name "core" :description "used for testing purposes only"}]}}}
 
    (routes
      (context "/messenger" []
@@ -37,6 +38,7 @@
          (POST "/" []
            :summary "Handles incoming messages"
            (fn [request respond raise]
+             (println "================================================= post messenger in =================================================")
              (messenger/messenger-in! request respond raise))))
      (context "/telegram" []
        :tags ["telegram"]
@@ -49,7 +51,6 @@
             (do (println "--------------- telegram-in ---------------")
                 (pprint request)
                 (telegram/telegram-in request respond raise)))))
-
      (context "/api-ai" []
       :tags ["api-ai"]
       (GET "/" []
@@ -67,4 +68,11 @@
                              (not= status 200) "My brain shut down for some reason :("
                              (and (= status 200) (< score threshold)) (nth utils/api-ai-score-not-met))]
                 (println "answer: " answer)
-                (respond (ok res))))))))))
+                (respond (ok res)))))))
+     (context "/core" []
+      :tags ["core"]
+      (GET "/" []
+        :summary "Used for testing purposes only"
+        (fn [request respond raise]
+          (pprint request)
+          (respond (ok))))))))

@@ -2,3 +2,6 @@
 status
 (is (= status 200))
 exit
+(or "hello" nil)
+(or "hello" "bye")
+exit

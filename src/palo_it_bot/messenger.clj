@@ -64,30 +64,24 @@
                          :message :text)
         received-img-url (-> body-params :entry (get 0) :messaging (get 0)
                              :message :attachments (get 0) :payload :url)
-        ; treat-api-ai-return (fn [res]
-        ;                       (let [status (:status res)
-        ;                             body (utils/js->clj (:body res) true)
-        ;                             speech (-> body :result :fulfillment :speech)
-        ;                             score (-> body :result :score)
-        ;                             threshold (-> config/TOKENS :dev :api-ai :THRESHOLD)
-        ;                             answer (cond
-        ;                                      (and (= status 200) (> score threshold)) speech
-        ;                                      (not= status 200) "My brain shut down for some reason :("
-        ;                                      (and (= status 200) (< score threshold)) (rand-nth utils/api-ai-score-not-met))]
-        ;                         (println "API.AI return: " answer)
-        ;                         answer))
+        common-format {:sender-id sender-id
+                       :message-type (cond
+                                       received-msg :text
+                                       received-img-url :photo)
+                       :message-value (or received-msg received-img-url)
+                       :sender-medium "messenger"}
         send-to-messenger (fn [text]
                             (do (println "send-to-messenger: " text)
                                 (messenger-send-text request text)))]
 
+    (println "received-msg: " received-msg)
     (when received-msg
           (a/go
                  (->
                       ; "What is PALO IT's vision?"
                       received-msg
-                      (api-ai/api-ai-send)
-                      (a/<!)
-                      (api-ai/treat-api-ai-return)
+                      ; (api-ai/api-ai-send)
+                      ; (a/<!)
+                      ; (api-ai/treat-api-ai-return)
                       (send-to-messenger))))
-
     (respond (ok))))
