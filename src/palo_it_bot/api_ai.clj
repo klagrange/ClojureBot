@@ -20,18 +20,3 @@
                     :form {:sessionId session-id
                            :lang "en"
                            :query text}})))
-
-;; (defn treat-api-ai-return
-;;   "Returns a string according to:
-;;   - res: the return from a request call to API.AI"
-;;   [res]
-;;   (let [status (:status res)
-;;         body (utils/js->clj (:body res) true)
-;;         speech (-> body :result :fulfillment :speech)
-;;         score (-> body :result :score)
-;;         threshold (-> config/TOKENS :dev :api-ai :THRESHOLD)
-;;         answer (cond
-;;                  (and (= status 200) (> score threshold)) speech
-;;                  (not= status 200) "My brain shut down for some reason :("
-;;                  (and (= status 200) (< score threshold)) (rand-nth utils/api-ai-score-not-met))]
-;;    answer))

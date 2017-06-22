@@ -41,7 +41,7 @@
                                             :message-type :text
                                             :message-value (replace speech
                                                                     #"\[\[identity\]\]"
-                                                                    (str "`" backend-id "`"))}
+                                                                    (str "\"" backend-id "\""))}
               (= action "get_history") {:sender-id sender-id
                                         :message-type :text
                                         :message-value (replace speech
