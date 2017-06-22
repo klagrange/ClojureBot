@@ -41,7 +41,7 @@
                                             :message-type :text
                                             :message-value (replace speech
                                                                     #"\[\[identity\]\]"
-                                                                    (str "`" backend-id "`"))}
+                                                                    (str "\"" backend-id "\""))}
               (= action "get_history") {:sender-id sender-id
                                         :message-type :text
                                         :message-value (replace speech
@@ -87,8 +87,7 @@
         sender-id (payload :sender-id)
         sender-medium (payload :sender-medium)
         message-type (get payload :message-type :unknown)
-        ch-out (a/chan)
-        backend-id (db/get-backend-id (name sender-medium))]
+        ch-out (a/chan)]
     (a/go
       (core-dispatch ch-out message-type sender-id sender-medium message-value))
     ch-out))
