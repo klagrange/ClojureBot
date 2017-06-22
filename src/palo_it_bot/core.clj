@@ -89,6 +89,6 @@
         message-type (get payload :message-type :unknown)
         ch-out (a/chan)
         backend-id (db/get-backend-id (name sender-medium)
-                                      sender-id)]
-    (core-dispatch ch-out message-type sender-id sender-medium message-value)
+    (a/go
+      (core-dispatch ch-out message-type sender-id sender-medium message-value))
     ch-out))
