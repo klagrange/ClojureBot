@@ -11,6 +11,11 @@
    - text: keyed-in text."
   [text session-id]
   (let [url (get-in config/TOKENS [:dev :api-ai :URL])
+        session-id (apply str
+                          (take 36
+                                (filter #(and (not= \: %)
+                                              (not= \_ %))
+                                        (str session-id))))
         client-access-token (get-in config/TOKENS [:dev :api-ai :CLIENT-ACCESS-TOKEN])]
     (kvlt/request! {:url "https://api.api.ai/v1/query?v=20150910"
                     :method :post

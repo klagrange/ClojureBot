@@ -12,6 +12,7 @@
             [kvlt.chan :as kvlt]
             [palo-it-bot.entrypoints.messenger :as messenger]
             [palo-it-bot.entrypoints.telegram :as telegram]
+            [palo-it-bot.entrypoints.skype :as skype]
             [palo-it-bot.api-ai :as api-ai]
             [cheshire.core :refer [generate-string parse-string]]
             compojure.api.async))
@@ -29,6 +30,7 @@
                    {:name "core" :description "used for testing purposes only"}]}}}
 
    (routes
+     ;; Messenger
      (context "/messenger" []
        :tags ["messenger"]
          (GET "/" []
@@ -38,8 +40,9 @@
          (POST "/" []
            :summary "Handles incoming messages"
            (fn [request respond raise]
-             (println "================================================= post messenger in =================================================")
              (messenger/messenger-in! request respond raise))))
+
+     ;; Telegram
      (context "/telegram" []
        :tags ["telegram"]
          (GET "/" []
@@ -48,9 +51,19 @@
          (POST "/" []
            :summary "Handles incoming messages"
            (fn [request respond raise]
-            (do (println "--------------- telegram-in ---------------")
-                (pprint request)
-                (telegram/telegram-in! request respond raise)))))
+             (telegram/telegram-in! request respond raise))))
+
+     ;; Skype
+     (context "/skype" []
+       :tags ["skype"]
+         (GET "/" []
+           :summary "Re"
+           (ok {:result "WORKING"}))
+         (POST "/" []
+           :summary "Handles incoming messages"
+           (fn [request respond raise]
+             (skype/skype-in! request respond raise))))
+
      (context "/api-ai" []
       :tags ["api-ai"]
       (GET "/" []
