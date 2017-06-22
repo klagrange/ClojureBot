@@ -6,8 +6,10 @@
             [kvlt.chan :as kvlt]
             [ring.util.http-response :refer :all]
             [clojure.core.async :as a]
+            [clojure.string :refer [join replace]]
             [clojure.pprint :refer [pprint]]))
 
+;; Token
 (def telegram-token (get-in config/TOKENS [:dev :telegram :TOKEN]))
 
 ;; Core Dispatch
@@ -20,6 +22,7 @@
   (let [api-return (-> message-value
                        (api-ai/api-ai-send (str (name sender-medium) sender-id))
                        (a/<!!))
+        backend-id (db/get-backend-id (name sender-medium) sender-id)
         body (utils/js->clj (:body api-return) true)
         speech (get-in body [:result :fulfillment :speech])
         action (get-in body [:result :action])
@@ -34,9 +37,22 @@
                                                :message-type :photo
                                                :message-value {:photo "https://media.licdn.com/mpr/mpr/shrinknp_200_200/AAEAAQAAAAAAAAhhAAAAJGZhZjkyNjg4LTRkZGMtNGY0Zi04MzM0LTUzZTI5NzBjNjgxOA.jpg"
                                                                :caption speech}}
+              (= action "get_my_identity") {:sender-id sender-id
+                                            :message-type :text
+                                            :message-value (replace speech
+                                                                    #"\[\[identity\]\]"
+                                                                    (str "`" backend-id "`"))}
+              (= action "get_history") {:sender-id sender-id
+                                        :message-type :text
+                                        :message-value (replace speech
+                                                                #"\[\[history\]\]"
+                                                                (str "\n  - " (join "\n  - " (db/get-history backend-id))))}
               :else {:sender-id sender-id
                      :message-type :text
                      :message-value speech})]
+
+
+    ;; Feedback
     (when (and (= action "feedback")
                action-over?)
       (kvlt/request! {:url (str "https://api.telegram.org/bot" telegram-token "/sendMessage")
@@ -45,6 +61,11 @@
                       :type :json
                       :form {:chat_id "-1001138612424"
                              :text (str "\"" message-value "\"")}}))
+
+    ;; History
+    (when action-over?
+      (db/append-history backend-id action))
+
     (a/>!! ch-out out)))
 ;; Core Dispatch (photo)
 (defmethod core-dispatch :photo
