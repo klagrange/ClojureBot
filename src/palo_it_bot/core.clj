@@ -91,4 +91,4 @@
         backend-id (db/get-backend-id (name sender-medium)
     (a/go
       (core-dispatch ch-out message-type sender-id sender-medium message-value))
-    ch-out))
+    ch-out)))
