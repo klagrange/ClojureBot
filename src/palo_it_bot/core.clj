@@ -89,13 +89,8 @@
         message-type (get payload :message-type :unknown)
         ch-out (a/chan)
         backend-id (db/get-backend-id (name sender-medium)
-                                      sender-id)]
+                                      sender-id)
+        session-id (str (name sender-medium) sender-id)]
     (a/go
-           (-> message-value
-               (api-ai/api-ai-send)
-               ; side effect calls
-               (a/<!)
-               (api-ai/treat-api-ai-return)
-               (->> (a/>! ch-out))))
-    (core-dispatch ch-out message-type sender-id sender-medium message-value)
+      (core-dispatch ch-out message-type sender-id sender-medium message-value))
     ch-out))
