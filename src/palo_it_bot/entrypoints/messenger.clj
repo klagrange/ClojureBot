@@ -58,6 +58,7 @@
 (defn messenger-in!
   "Messenger IN"
   [request respond raise]
+  (respond (ok))
   (let [body-params (:body-params request)
         sender-id (-> body-params :entry (get 0) :messaging (get 0) :sender :id)
         received-msg (-> body-params :entry (get 0) :messaging (get 0)
@@ -73,8 +74,9 @@
         send-to-messenger (fn [text]
                             (do (println "send-to-messenger: " text)
                                 (messenger-send-text request text)))]
-
+    ; (pprint request)
     (println "received-msg: " received-msg)
+
     (when received-msg
           (a/go
                  (->
@@ -83,5 +85,4 @@
                       ; (api-ai/api-ai-send)
                       ; (a/<!)
                       ; (api-ai/treat-api-ai-return)
-                      (send-to-messenger))))
-    (respond (ok))))
+                      (send-to-messenger))))))

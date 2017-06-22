@@ -91,5 +91,11 @@
         backend-id (db/get-backend-id (name sender-medium)
                                       sender-id)]
     (a/go
-      (core-dispatch ch-out message-type sender-id sender-medium message-value))
+           (-> message-value
+               (api-ai/api-ai-send)
+               ; side effect calls
+               (a/<!)
+               (api-ai/treat-api-ai-return)
+               (->> (a/>! ch-out))))
+    (core-dispatch ch-out message-type sender-id sender-medium message-value)
     ch-out))
