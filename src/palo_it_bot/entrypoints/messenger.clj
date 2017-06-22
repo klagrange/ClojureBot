@@ -29,57 +29,24 @@
                     :type :json
                     :form {:recipient {:id sender-id}
                            :message {:text text}}})))
-
-; ;; Telegram Out! (photo)
-; (defmethod messenger-out :photo
-;   [payload]
-;   (let [sender-id (payload :sender-id)
-;         photo (:photo (payload :message-value))
-;         caption (:caption (payload :message-value))]
-;     (kvlt/request! {:url (str "https://api.telegram.org/bot" telegram-token "/sendPhoto")
-;                     :method :post
-;                     :headers {:content-type "application/json"}
-;                     :type :json
-;                     :form (cond-> {:chat_id sender-id
-;                                    :photo photo}
-;                             caption (assoc :caption caption))})))
-
-
-
-
-
-
-
-(defn- messenger-send-img
-  "Returns a channel according to a given specific payload for image"
-  [request img-url]
+;; Messenger Out! (photo)
+(defmethod messenger-out :photo
+  [payload]
   (let [fb_graph_uri (str "https://graph.facebook.com/v2.6/me/messages?access_token="
-                          (-> config/TOKENS :dev :messenger :PAGE-ACCESS-TOKEN))
-        body-params (:body-params request)
-        sender-id (-> body-params :entry (get 0) :messaging (get 0) :sender :id)
-        payload {:recipient {:id sender-id}
-                 :message {:attachment {:type "image"
-                                        :payload {:url img-url}}}}]
+                          messenger-access-token)
+        sender-id (payload :sender-id)
+        photo (:photo (payload :message-value))
+        caption (:caption (payload :message-value))]
     (kvlt/request! {:url fb_graph_uri
                     :method :post
                     :headers {:content-type "application/json"}
                     :type :json
-                    :form payload})))
+                    :form {:recipient {:id sender-id}
+                           :message {:attachment {:type "template"
+                                                  :payload {:template_type "generic"
+                                                            :elements [{:title caption
+                                                                        :image_url photo}]}}}}})))
 
-(defn- messenger-send-text
-  "Returns a channel according to a given specific payload for text"
-  [request text]
-  (let [fb_graph_uri (str "https://graph.facebook.com/v2.6/me/messages?access_token="
-                          (-> config/TOKENS :dev :messenger :PAGE-ACCESS-TOKEN))
-        body-params (:body-params request)
-        sender-id (-> body-params :entry (get 0) :messaging (get 0) :sender :id)
-        payload {:recipient {:id sender-id}
-                 :message {:text text}}]
-    (kvlt/request! {:url fb_graph_uri
-                    :method :post
-                    :headers {:content-type "application/json"}
-                    :type :json
-                    :form payload})))
 
 (defn messenger-register-webhook
   "Attempts to register facebook webhook."
@@ -114,23 +81,9 @@
                                            :else :unknown)
                            :message-value (or text photo)
                            :sender-medium :messenger}]
-
-    ; (pprint request)
-    (println "===================================================================================")
-    (pprint formatted-message)
-
     (when formatted-message
-          ; (a/go
-          ;        (->
-          ;             ; "What is PALO IT's vision?"
-          ;             text
-          ;             ; (api-ai/api-ai-send)
-          ;             ; (a/<!)
-          ;             ; (api-ai/treat-api-ai-return)
-          ;             (send-to-messenger)
-          ;
-          ;             (a/go))))))
-        (-> formatted-message
-            (core/core)
-            (a/<!)
-            (messenger-out)))))
+        (a/go
+          (-> formatted-message
+              (core/core)
+              (a/<!)
+              (messenger-out))))))
