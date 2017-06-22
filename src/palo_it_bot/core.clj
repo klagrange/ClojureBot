@@ -70,9 +70,9 @@
 ;; Core Dispatch (photo)
 (defmethod core-dispatch :photo
   [ch-out _ sender-id sender-medium message-value]
-  (a/>!! ch-out {:sender-id sender-id
+  (a/>!! ch-out {:sender-id sender-id}
                 :message-type :text
-                :message-value "You send me a picture"}))
+                :message-value "You send me a picture"))
 ;; Core Dispatch (unknown)
 (defmethod core-dispatch :unknown
   [ch-out _ sender-id sender-medium message-value]
@@ -88,7 +88,7 @@
         sender-medium (payload :sender-medium)
         message-type (get payload :message-type :unknown)
         ch-out (a/chan)
-        backend-id (db/get-backend-id (name sender-medium)
+        backend-id (db/get-backend-id (name sender-medium))]
     (a/go
       (core-dispatch ch-out message-type sender-id sender-medium message-value))
-    ch-out)))
+    ch-out))
