@@ -25,6 +25,7 @@
                     :headers {:content-type "application/json"}
                     :type :json
                     :form {:chat_id sender-id
+                           :parse_mode "Markdown"
                            :text text}})))
 ;; Telegram Out! (photo)
 (defmethod telegram-out :photo
