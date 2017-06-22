@@ -38,7 +38,6 @@
          (POST "/" []
            :summary "Handles incoming messages"
            (fn [request respond raise]
-             (println "================================================= post messenger in =================================================")
              (messenger/messenger-in! request respond raise))))
      (context "/telegram" []
        :tags ["telegram"]
