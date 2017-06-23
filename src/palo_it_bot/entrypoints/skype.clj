@@ -36,7 +36,7 @@
     (kvlt/request! {:url (str "https://apis.skype.com/v3/conversations/" sender-id "/activities")
                     :method :post
                     :headers {:content-type "application/json"
-                              "Authorization" (str "Bearer " skype-toke skype-token)}
+                              "Authorization" (str "Bearer " skype-token)}
                     :type :json
                     :form {:type "message/text"
                            :text caption
