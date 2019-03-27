@@ -1,7 +1,3 @@
-# palo-it-bot
-
-FIXME
-
 ## Usage
 
 ### Run the application locally
